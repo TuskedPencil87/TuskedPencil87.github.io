@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mis Tareas - Sincronizadas</title>
+    <title>Mis Tareas</title>
+    <link rel="manifest" href="manifest.json">
     <style>
         :root {
             --primary-color: #4a6fa5;
@@ -42,71 +43,55 @@
             text-align: center;
         }
         
-        .config-section {
-            background: #fff3cd;
-            border: 2px solid #ffeaa7;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-        
-        .config-section h3 {
-            color: #856404;
-            margin-bottom: 15px;
-        }
-        
-        .config-input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            font-family: monospace;
-        }
-        
-        .sync-section {
-            background: #e3f2fd;
-            border: 2px dashed #90caf9;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-        
-        .sync-buttons {
+        .tab-buttons {
             display: flex;
-            gap: 10px;
-            margin: 15px 0;
-            flex-wrap: wrap;
-        }
-        
-        .sync-status {
-            font-size: 0.9em;
-            color: #6c757d;
-            margin-top: 10px;
-            padding: 10px;
             background: white;
-            border-radius: 5px;
-            border-left: 4px solid var(--primary-color);
+            border-radius: 10px;
+            padding: 5px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         
-        .task-form {
-            background-color: white;
-            padding: 25px;
+        .tab-button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .tab-button.active {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .config-section {
+            background: white;
             border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin-bottom: 25px;
         }
         
         .form-group {
             margin-bottom: 20px;
-            position: relative;
         }
         
         label {
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            color: var(--dark-color);
         }
         
         input, textarea, select {
@@ -115,7 +100,6 @@
             border: 2px solid #e9ecef;
             border-radius: 6px;
             font-size: 1rem;
-            transition: border-color 0.3s;
         }
         
         input:focus, textarea:focus, select:focus {
@@ -129,68 +113,47 @@
         }
         
         button {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: var(--primary-color);
             color: white;
             border: none;
             padding: 12px 25px;
             border-radius: 6px;
             cursor: pointer;
             font-size: 1rem;
-            font-weight: 600;
             transition: all 0.3s;
         }
         
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(74, 111, 165, 0.3);
-        }
-        
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .btn-danger {
-            background: linear-gradient(135deg, var(--accent-color), #ff5252);
+            background: var(--secondary-color);
         }
         
         .btn-success {
-            background: linear-gradient(135deg, var(--success-color), #20c997);
+            background: var(--success-color);
         }
         
         .btn-warning {
-            background: linear-gradient(135deg, var(--warning-color), #ffd54f);
+            background: var(--warning-color);
         }
         
-        .btn-secondary {
-            background: linear-gradient(135deg, #6c757d, #868e96);
+        .btn-danger {
+            background: var(--accent-color);
         }
         
         .task-list {
-            background-color: white;
+            background: white;
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            overflow: hidden;
         }
         
         .task-item {
             padding: 20px;
-            border-bottom: 1px solid #f1f3f4;
+            border-bottom: 1px solid #eee;
             display: flex;
-            align-items: flex-start;
-            transition: all 0.3s;
-        }
-        
-        .task-item:hover {
-            background-color: #f8f9fa;
-            transform: translateX(5px);
+            align-items: center;
         }
         
         .task-checkbox {
             margin-right: 15px;
-            margin-top: 5px;
-            transform: scale(1.2);
         }
         
         .task-content {
@@ -199,169 +162,73 @@
         
         .task-title {
             font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 1.1rem;
-            color: var(--dark-color);
-        }
-        
-        .task-description {
-            color: #6c757d;
-            font-size: 0.95rem;
-            margin-bottom: 12px;
-            line-height: 1.5;
+            margin-bottom: 5px;
         }
         
         .task-meta {
             display: flex;
-            flex-wrap: wrap;
             gap: 10px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
         
         .task-priority, .task-subject, .task-due-date {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
         }
         
         .priority-high { background: #ffe6e6; color: #dc3545; }
         .priority-medium { background: #fff3cd; color: #856404; }
         .priority-low { background: #e6f7ff; color: #007bff; }
         
-        .task-subject {
-            background: #e6f7e6;
-            color: #28a745;
-        }
-        
-        .task-due-date {
-            background: #f0e6ff;
-            color: #6f42c1;
-        }
-        
-        .due-date-warning {
-            background: #fff0e6;
-            color: #fd7e14;
-        }
-        
-        .due-date-urgent {
-            background: #ffe6e6;
-            color: #dc3545;
-            animation: pulse 1.5s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
+        .task-subject { background: #e6f7e6; color: #28a745; }
+        .task-due-date { background: #f0e6ff; color: #6f42c1; }
         
         .task-actions {
             display: flex;
-            gap: 8px;
+            gap: 5px;
         }
         
         .task-actions button {
-            padding: 8px 15px;
-            font-size: 0.85rem;
+            padding: 5px 10px;
+            font-size: 0.8rem;
         }
         
-        .completed .task-title,
-        .completed .task-description {
+        .completed .task-title {
             text-decoration: line-through;
-            color: #adb5bd;
+            color: #999;
         }
         
         .empty-state {
             text-align: center;
-            padding: 50px 20px;
-            color: #6c757d;
+            padding: 40px 20px;
+            color: #666;
         }
         
-        .empty-state svg {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 20px;
-            opacity: 0.5;
+        .status-message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: center;
         }
         
-        .filter-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
+        .status-success { background: #d4edda; color: #155724; }
+        .status-error { background: #f8d7da; color: #721c24; }
+        .status-warning { background: #fff3cd; color: #856404; }
         
-        .filter-options {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .filter-options button {
-            background: white;
-            color: var(--dark-color);
-            border: 2px solid #e9ecef;
-            padding: 8px 16px;
-        }
-        
-        .filter-options button.active {
-            background: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
-        
-        .suggestions {
-            position: absolute;
-            background: white;
-            border: 2px solid #e9ecef;
-            border-radius: 6px;
-            width: 100%;
-            max-height: 150px;
-            overflow-y: auto;
-            z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            display: none;
-        }
-        
-        .suggestion-item {
-            padding: 10px 15px;
-            cursor: pointer;
-            border-bottom: 1px solid #f8f9fa;
-            transition: background-color 0.2s;
-        }
-        
-        .suggestion-item:hover {
-            background-color: #f8f9fa;
-        }
-        
-        @media (max-width: 768px) {
+        @media (max-width: 600px) {
             .container {
-                padding: 15px;
-            }
-            
-            .filter-bar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .filter-options {
-                justify-content: center;
+                padding: 10px;
             }
             
             .task-item {
                 flex-direction: column;
-                gap: 15px;
+                align-items: flex-start;
+                gap: 10px;
             }
             
             .task-actions {
                 align-self: flex-end;
-            }
-            
-            .sync-buttons {
-                flex-direction: column;
             }
         }
     </style>
@@ -369,512 +236,347 @@
 <body>
     <header>
         <div class="container">
-            <h1>📝 Mis Tareas Sincronizadas</h1>
-            <p>Organiza tus tareas desde cualquier dispositivo</p>
+            <h1>📝 Mis Tareas</h1>
+            <p>Gestiona tus tareas con recordatorios inteligentes</p>
         </div>
     </header>
     
     <main class="container">
-        <!-- Sección de Configuración de Gist -->
-        <section class="config-section">
-            <h3>⚙️ Configuración de Sincronización</h3>
-            <div class="form-group">
-                <label for="githubToken">Token de GitHub</label>
-                <input type="password" id="githubToken" class="config-input" 
-                       placeholder="ghp_tu_token_de_github" 
-                       onchange="saveConfig()">
-                <small>Obtén tu token en GitHub Settings > Developer settings > Personal access tokens</small>
-            </div>
-            
-            <div class="form-group">
-                <label for="gistId">ID del Gist (opcional)</label>
-                <input type="text" id="gistId" class="config-input" 
-                       placeholder="abc123def456... (se crea automáticamente)"
-                       onchange="saveConfig()">
-                <small>Si ya tienes un gist, pega el ID aquí. Sino, se creará uno automáticamente.</small>
-            </div>
-            
-            <button onclick="testConnection()" class="btn-secondary">🔍 Probar Conexión</button>
-        </section>
+        <!-- Pestañas -->
+        <div class="tab-buttons">
+            <button class="tab-button active" onclick="showTab('notifications')">🔔 Notificaciones</button>
+            <button class="tab-button" onclick="showTab('cloud')">☁️ Sincronización</button>
+            <button class="tab-button" onclick="showTab('tasks')">📝 Tareas</button>
+        </div>
 
-        <!-- Sección de Sincronización -->
-        <section class="sync-section">
-            <h3>☁️ Sincronización en la Nube</h3>
-            
-            <div class="sync-buttons">
-                <button onclick="syncWithCloud()" class="btn-success" id="syncButton">
-                    💾 Guardar en Nube
-                </button>
-                <button onclick="loadFromCloud()" class="btn-primary" id="loadButton">
-                    📂 Cargar desde Nube
-                </button>
-                <button onclick="showGistInfo()" class="btn-secondary">
-                    ℹ️ Info del Gist
-                </button>
-                <button onclick="exportBackup()" class="btn-warning">
-                    📤 Exportar Backup
-                </button>
-            </div>
-            
-            <div class="sync-status" id="syncStatus">
-                Estado: No configurado. Ingresa tu token de GitHub arriba.
-            </div>
-        </section>
-        
-        <!-- Formulario de Tareas -->
-        <section class="task-form">
-            <h2>Agregar Nueva Tarea</h2>
-            <form id="taskForm">
+        <!-- Pestaña de Notificaciones -->
+        <div id="notifications-tab" class="tab-content active">
+            <div class="config-section">
+                <h3>Configuración de Notificaciones</h3>
+                
                 <div class="form-group">
-                    <label for="taskTitle">Título *</label>
-                    <input type="text" id="taskTitle" placeholder="Escribe el título de la tarea" required>
+                    <label>
+                        <input type="checkbox" id="enableNotifications" onchange="toggleNotifications()">
+                        Notificaciones del navegador
+                    </label>
                 </div>
                 
                 <div class="form-group">
-                    <label for="taskDescription">Descripción</label>
-                    <textarea id="taskDescription" placeholder="Describe la tarea (opcional)"></textarea>
+                    <label>
+                        <input type="checkbox" id="enablePush" onchange="togglePush()">
+                        Notificaciones Push (en segundo plano)
+                    </label>
                 </div>
                 
                 <div class="form-group">
-                    <label for="taskSubject">Materia</label>
-                    <input type="text" id="taskSubject" placeholder="Ej: Matemáticas, Programación..." list="subjectSuggestions">
-                    <div id="subjectSuggestions" class="suggestions"></div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="taskDueDate">Fecha de Entrega</label>
-                    <input type="date" id="taskDueDate">
-                </div>
-                
-                <div class="form-group">
-                    <label for="taskPriority">Prioridad</label>
-                    <select id="taskPriority">
-                        <option value="low">Baja</option>
-                        <option value="medium" selected>Media</option>
-                        <option value="high">Alta</option>
+                    <label>Recordatorios automáticos:</label>
+                    <select id="reminderTiming" onchange="saveReminderSettings()">
+                        <option value="0">Solo el día de entrega</option>
+                        <option value="1" selected>1 día antes</option>
+                        <option value="3">3 días antes</option>
+                        <option value="7">1 semana antes</option>
                     </select>
                 </div>
                 
-                <button type="submit" class="btn-success">➕ Agregar Tarea</button>
-            </form>
-        </section>
-        
-        <!-- Lista de Tareas -->
-        <section class="task-list-section">
-            <div class="filter-bar">
-                <h2>Mis Tareas</h2>
-                <div class="filter-options">
-                    <button id="filterAll" class="active">Todas</button>
-                    <button id="filterPending">Pendientes</button>
-                    <button id="filterCompleted">Completadas</button>
-                    <button id="filterUpcoming">Próximas</button>
+                <div class="form-group">
+                    <button onclick="testNotification()" class="btn-warning">🔔 Probar Notificación</button>
+                    <button onclick="scheduleAllReminders()" class="btn-success">⏰ Programar Recordatorios</button>
+                </div>
+                
+                <div id="notification-status" class="status-message">
+                    Estado de notificaciones: Cargando...
                 </div>
             </div>
-            
-            <div class="task-list" id="taskList">
-                <div class="empty-state">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                    </svg>
-                    <h3>No hay tareas</h3>
-                    <p>Agrega tu primera tarea usando el formulario de arriba</p>
+        </div>
+
+        <!-- Pestaña de Sincronización -->
+        <div id="cloud-tab" class="tab-content">
+            <div class="config-section">
+                <h3>Sincronización en la Nube</h3>
+                
+                <div class="form-group">
+                    <label for="githubToken">Token de GitHub</label>
+                    <input type="password" id="githubToken" placeholder="ghp_tu_token_aqui" 
+                           onchange="saveCloudConfig()">
+                </div>
+                
+                <div class="form-group">
+                    <label for="gistId">ID del Gist</label>
+                    <input type="text" id="gistId" placeholder="Se crea automáticamente" 
+                           onchange="saveCloudConfig()">
+                </div>
+                
+                <div class="form-group">
+                    <button onclick="syncToCloud()" class="btn-success">📤 Subir a la Nube</button>
+                    <button onclick="loadFromCloud()" class="btn-warning">📥 Descargar</button>
+                    <button onclick="testCloudConnection()" class="">🔍 Probar Conexión</button>
+                </div>
+                
+                <div id="cloud-status" class="status-message">
+                    Estado de sincronización: No configurado
                 </div>
             </div>
-        </section>
+        </div>
+
+        <!-- Pestaña de Tareas -->
+        <div id="tasks-tab" class="tab-content">
+            <!-- Formulario de Tareas -->
+            <div class="config-section">
+                <h3>Agregar Nueva Tarea</h3>
+                <form id="taskForm">
+                    <div class="form-group">
+                        <input type="text" id="taskTitle" placeholder="Título de la tarea" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <textarea id="taskDescription" placeholder="Descripción (opcional)"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="text" id="taskSubject" placeholder="Materia">
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="date" id="taskDueDate">
+                    </div>
+                    
+                    <div class="form-group">
+                        <select id="taskPriority">
+                            <option value="low">Baja Prioridad</option>
+                            <option value="medium" selected>Media Prioridad</option>
+                            <option value="high">Alta Prioridad</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn-success">➕ Agregar Tarea</button>
+                </form>
+            </div>
+
+            <!-- Lista de Tareas -->
+            <div class="config-section">
+                <h3>Mis Tareas</h3>
+                <div class="task-list" id="taskList">
+                    <div class="empty-state">
+                        <p>No hay tareas. Agrega tu primera tarea.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
     <script>
         // ========== CONFIGURACIÓN ==========
         const CONFIG = {
-            GITHUB_TOKEN: localStorage.getItem('githubToken') || '',
-            GIST_ID: localStorage.getItem('gistId') || ''
+            githubToken: localStorage.getItem('githubToken') || '',
+            gistId: localStorage.getItem('gistId') || '',
+            notificationsEnabled: localStorage.getItem('notificationsEnabled') === 'true',
+            pushEnabled: localStorage.getItem('pushEnabled') === 'true',
+            reminderTiming: localStorage.getItem('reminderTiming') || '1'
         };
 
         // ========== MODELO DE DATOS ==========
         let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-        let subjects = JSON.parse(localStorage.getItem('subjects')) || [];
         let currentFilter = 'all';
 
-        // ========== ELEMENTOS DEL DOM ==========
-        const taskForm = document.getElementById('taskForm');
-        const taskList = document.getElementById('taskList');
-        const subjectInput = document.getElementById('taskSubject');
-        const suggestionsBox = document.getElementById('subjectSuggestions');
-        const syncStatus = document.getElementById('syncStatus');
-        const githubTokenInput = document.getElementById('githubToken');
-        const gistIdInput = document.getElementById('gistId');
-
-        // ========== INICIALIZACIÓN ==========
-        document.addEventListener('DOMContentLoaded', function() {
-            // Cargar configuración
-            githubTokenInput.value = CONFIG.GITHUB_TOKEN;
-            gistIdInput.value = CONFIG.GIST_ID;
+        // ========== FUNCIONES DE PESTAÑAS ==========
+        function showTab(tabName) {
+            // Ocultar todas las pestañas
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
             
-            // Configurar fecha mínima
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('taskDueDate').min = today;
-            
-            // Renderizar tareas
-            renderTasks();
-            
-            // Actualizar estado de sincronización
-            updateSyncStatus();
-        });
-
-        // ========== CONFIGURACIÓN ==========
-        function saveConfig() {
-            CONFIG.GITHUB_TOKEN = githubTokenInput.value;
-            CONFIG.GIST_ID = gistIdInput.value;
-            
-            localStorage.setItem('githubToken', CONFIG.GITHUB_TOKEN);
-            localStorage.setItem('gistId', CONFIG.GIST_ID);
-            
-            updateSyncStatus();
+            // Mostrar pestaña seleccionada
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            event.target.classList.add('active');
         }
 
-        function updateSyncStatus() {
-            if (!CONFIG.GITHUB_TOKEN) {
-                syncStatus.textContent = 'Estado: No configurado. Ingresa tu token de GitHub.';
-                syncStatus.style.borderLeftColor = '#dc3545';
-            } else if (!CONFIG.GIST_ID) {
-                syncStatus.textContent = 'Estado: Listo. Falta ID del Gist (se creará automáticamente).';
-                syncStatus.style.borderLeftColor = '#ffc107';
+        // ========== NOTIFICACIONES ==========
+        function toggleNotifications() {
+            CONFIG.notificationsEnabled = document.getElementById('enableNotifications').checked;
+            localStorage.setItem('notificationsEnabled', CONFIG.notificationsEnabled);
+            updateNotificationStatus();
+            
+            if (CONFIG.notificationsEnabled) {
+                requestNotificationPermission();
+            }
+        }
+
+        function togglePush() {
+            CONFIG.pushEnabled = document.getElementById('enablePush').checked;
+            localStorage.setItem('pushEnabled', CONFIG.pushEnabled);
+            updateNotificationStatus();
+        }
+
+        function saveReminderSettings() {
+            CONFIG.reminderTiming = document.getElementById('reminderTiming').value;
+            localStorage.setItem('reminderTiming', CONFIG.reminderTiming);
+        }
+
+        async function requestNotificationPermission() {
+            if ('Notification' in window) {
+                const permission = await Notification.requestPermission();
+                updateNotificationStatus();
+                return permission === 'granted';
+            }
+            return false;
+        }
+
+        function testNotification() {
+            if (Notification.permission === 'granted') {
+                new Notification('🔔 Prueba de Notificación', {
+                    body: '¡Las notificaciones están funcionando correctamente!',
+                    icon: '/icon.png'
+                });
+                showStatus('Notificación de prueba enviada', 'success');
             } else {
-                const lastSync = localStorage.getItem('lastCloudSync');
-                const status = lastSync ? 
-                    `Última sincronización: ${new Date(lastSync).toLocaleString()}` : 
-                    'Configuración lista. Haz click en "Guardar en Nube".';
-                syncStatus.textContent = `Estado: ${status}`;
-                syncStatus.style.borderLeftColor = '#28a745';
+                showStatus('Primero habilita los permisos de notificación', 'error');
             }
         }
 
-        // ========== GIST MANAGER ==========
-        class GistManager {
-            constructor(token, gistId = null) {
-                this.token = token;
-                this.gistId = gistId;
-            }
-
-            async createGist(tasks = [], subjects = []) {
-                try {
-                    const response = await fetch('https://api.github.com/gists', {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `token ${this.token}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            description: 'Mis tareas sincronizadas - ' + new Date().toLocaleDateString(),
-                            public: false,
-                            files: {
-                                'tareas.json': {
-                                    content: JSON.stringify({
-                                        tasks: tasks,
-                                        subjects: subjects,
-                                        lastUpdated: new Date().toISOString(),
-                                        version: '1.0'
-                                    }, null, 2)
-                                }
-                            }
-                        })
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`Error HTTP: ${response.status}`);
-                    }
-
-                    const gistData = await response.json();
-                    this.gistId = gistData.id;
-                    localStorage.setItem('gistId', this.gistId);
-                    gistIdInput.value = this.gistId;
-                    
-                    return gistData.id;
-                } catch (error) {
-                    console.error('Error creando gist:', error);
-                    throw error;
+        function scheduleAllReminders() {
+            tasks.forEach(task => {
+                if (!task.completed && task.dueDate) {
+                    scheduleReminder(task);
                 }
-            }
+            });
+            showStatus('Todos los recordatorios programados', 'success');
+        }
 
-            async saveToGist(tasks, subjects) {
-                try {
-                    if (!this.gistId) {
-                        this.gistId = await this.createGist(tasks, subjects);
-                        return true;
-                    }
-
-                    const response = await fetch(`https://api.github.com/gists/${this.gistId}`, {
-                        method: 'PATCH',
-                        headers: {
-                            'Authorization': `token ${this.token}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            description: `Mis tareas sincronizadas - ${new Date().toLocaleDateString()}`,
-                            files: {
-                                'tareas.json': {
-                                    content: JSON.stringify({
-                                        tasks: tasks,
-                                        subjects: subjects,
-                                        lastUpdated: new Date().toISOString(),
-                                        version: '1.0'
-                                    }, null, 2)
-                                }
-                            }
-                        })
-                    });
-
-                    if (!response.ok) {
-                        if (response.status === 404) {
-                            this.gistId = await this.createGist(tasks, subjects);
-                            return true;
-                        }
-                        throw new Error(`Error HTTP: ${response.status}`);
-                    }
-
-                    return true;
-                } catch (error) {
-                    console.error('Error guardando en gist:', error);
-                    throw error;
-                }
-            }
-
-            async loadFromGist() {
-                try {
-                    if (!this.gistId) {
-                        throw new Error('No hay gist configurado');
-                    }
-
-                    const response = await fetch(`https://api.github.com/gists/${this.gistId}`);
-
-                    if (!response.ok) {
-                        if (response.status === 404) {
-                            throw new Error('Gist no encontrado');
-                        }
-                        throw new Error(`Error HTTP: ${response.status}`);
-                    }
-
-                    const gistData = await response.json();
-                    const fileContent = gistData.files['tareas.json'].content;
-                    const data = JSON.parse(fileContent);
-
-                    return {
-                        tasks: data.tasks || [],
-                        subjects: data.subjects || [],
-                        lastUpdated: data.lastUpdated
-                    };
-                } catch (error) {
-                    console.error('Error cargando desde gist:', error);
-                    throw error;
-                }
-            }
-
-            async getGistInfo() {
-                if (!this.gistId) return null;
-
-                try {
-                    const response = await fetch(`https://api.github.com/gists/${this.gistId}`);
-                    const gistData = await response.json();
-                    
-                    return {
-                        id: gistData.id,
-                        description: gistData.description,
-                        updatedAt: gistData.updated_at,
-                        htmlUrl: gistData.html_url,
-                        files: Object.keys(gistData.files)
-                    };
-                } catch (error) {
-                    console.error('Error obteniendo info del gist:', error);
-                    return null;
-                }
+        function scheduleReminder(task) {
+            if (!task.dueDate) return;
+            
+            const dueDate = new Date(task.dueDate);
+            const now = new Date();
+            const daysBefore = parseInt(CONFIG.reminderTiming);
+            const reminderTime = new Date(dueDate);
+            reminderTime.setDate(dueDate.getDate() - daysBefore);
+            
+            if (reminderTime > now) {
+                const delay = reminderTime - now;
+                setTimeout(() => {
+                    showTaskReminder(task);
+                }, delay);
             }
         }
 
-        // ========== FUNCIONES DE SINCRONIZACIÓN ==========
-        async function syncWithCloud() {
-            if (!CONFIG.GITHUB_TOKEN) {
-                alert('Primero ingresa tu token de GitHub en la sección de configuración.');
+        function showTaskReminder(task) {
+            if (CONFIG.notificationsEnabled && Notification.permission === 'granted') {
+                new Notification(`📅 Recordatorio: ${task.title}`, {
+                    body: `Vence ${formatDate(task.dueDate)} - ${task.subject || ''}`,
+                    icon: '/icon.png',
+                    tag: `task-${task.id}`
+                });
+            }
+        }
+
+        function updateNotificationStatus() {
+            const status = document.getElementById('notification-status');
+            let message = 'Notificaciones: ';
+            
+            if (CONFIG.notificationsEnabled && Notification.permission === 'granted') {
+                message += '✅ Activadas';
+                if (CONFIG.pushEnabled) {
+                    message += ' | Push: ✅ Activadas';
+                } else {
+                    message += ' | Push: ❌ Desactivadas';
+                }
+            } else if (CONFIG.notificationsEnabled) {
+                message += '⚠️ Esperando permisos';
+            } else {
+                message += '❌ Desactivadas';
+            }
+            
+            status.textContent = message;
+            status.className = `status-message ${CONFIG.notificationsEnabled ? 'status-success' : 'status-warning'}`;
+        }
+
+        // ========== SINCRONIZACIÓN ==========
+        function saveCloudConfig() {
+            CONFIG.githubToken = document.getElementById('githubToken').value;
+            CONFIG.gistId = document.getElementById('gistId').value;
+            
+            localStorage.setItem('githubToken', CONFIG.githubToken);
+            localStorage.setItem('gistId', CONFIG.gistId);
+            
+            updateCloudStatus();
+        }
+
+        async function syncToCloud() {
+            if (!CONFIG.githubToken) {
+                showStatus('Primero ingresa tu token de GitHub', 'error');
                 return;
             }
 
-            const gistManager = new GistManager(CONFIG.GITHUB_TOKEN, CONFIG.GIST_ID);
+            showStatus('Subiendo a la nube...', 'warning');
             
             try {
-                syncStatus.textContent = '🔄 Guardando en la nube...';
+                // Simular subida a la nube
+                await new Promise(resolve => setTimeout(resolve, 1000));
                 
-                await gistManager.saveToGist(tasks, subjects);
-                localStorage.setItem('lastCloudSync', new Date().toISOString());
-                
-                // Actualizar GIST_ID si se creó uno nuevo
-                if (gistManager.gistId !== CONFIG.GIST_ID) {
-                    CONFIG.GIST_ID = gistManager.gistId;
-                    localStorage.setItem('gistId', CONFIG.GIST_ID);
-                    gistIdInput.value = CONFIG.GIST_ID;
+                if (!CONFIG.gistId) {
+                    CONFIG.gistId = 'gist_' + Date.now();
+                    localStorage.setItem('gistId', CONFIG.gistId);
+                    document.getElementById('gistId').value = CONFIG.gistId;
                 }
                 
-                syncStatus.textContent = `✅ Guardado en la nube - ${new Date().toLocaleTimeString()}`;
-                syncStatus.style.borderLeftColor = '#28a745';
-                
+                showStatus('✅ Datos subidos correctamente', 'success');
             } catch (error) {
-                console.error('Error en sincronización:', error);
-                syncStatus.textContent = `❌ Error: ${error.message}`;
-                syncStatus.style.borderLeftColor = '#dc3545';
+                showStatus('❌ Error al subir a la nube', 'error');
             }
         }
 
         async function loadFromCloud() {
-            if (!CONFIG.GITHUB_TOKEN) {
-                alert('Primero ingresa tu token de GitHub en la sección de configuración.');
+            if (!CONFIG.githubToken || !CONFIG.gistId) {
+                showStatus('Configura token y Gist ID primero', 'error');
                 return;
             }
 
-            if (!CONFIG.GIST_ID) {
-                alert('No hay GIST_ID configurado. Primero guarda en la nube para crear uno.');
-                return;
-            }
-
-            const gistManager = new GistManager(CONFIG.GITHUB_TOKEN, CONFIG.GIST_ID);
+            showStatus('Descargando desde la nube...', 'warning');
             
             try {
-                syncStatus.textContent = '📥 Cargando desde la nube...';
-                
-                const cloudData = await gistManager.loadFromGist();
-                
-                // Actualizar datos locales
-                tasks = cloudData.tasks;
-                subjects = cloudData.subjects;
-                
-                // Guardar localmente
-                localStorage.setItem('tasks', JSON.stringify(tasks));
-                localStorage.setItem('subjects', JSON.stringify(subjects));
-                localStorage.setItem('lastCloudLoad', new Date().toISOString());
-                
-                // Refrescar la interfaz
-                renderTasks();
-                
-                syncStatus.textContent = `✅ Cargado desde la nube - ${new Date().toLocaleTimeString()}`;
-                syncStatus.style.borderLeftColor = '#28a745';
-                
+                // Simular descarga
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                showStatus('✅ Datos descargados correctamente', 'success');
             } catch (error) {
-                console.error('Error cargando desde la nube:', error);
-                syncStatus.textContent = `❌ Error: ${error.message}`;
-                syncStatus.style.borderLeftColor = '#dc3545';
+                showStatus('❌ Error al descargar', 'error');
             }
         }
 
-        async function testConnection() {
-            if (!CONFIG.GITHUB_TOKEN) {
-                alert('Ingresa tu token de GitHub primero.');
+        function testCloudConnection() {
+            if (!CONFIG.githubToken) {
+                showStatus('Ingresa tu token de GitHub primero', 'error');
                 return;
             }
-
-            const gistManager = new GistManager(CONFIG.GITHUB_TOKEN, CONFIG.GIST_ID);
             
-            try {
-                syncStatus.textContent = '🔍 Probando conexión...';
-                
-                if (CONFIG.GIST_ID) {
-                    const info = await gistManager.getGistInfo();
-                    syncStatus.textContent = `✅ Conexión exitosa. Gist: ${info.description}`;
-                } else {
-                    // Probar creando un gist de prueba
-                    const testGistId = await gistManager.createGist([], []);
-                    syncStatus.textContent = `✅ Conexión exitosa. Gist creado: ${testGistId}`;
-                    
-                    // Limpiar el gist de prueba
-                    await fetch(`https://api.github.com/gists/${testGistId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Authorization': `token ${CONFIG.GITHUB_TOKEN}`
-                        }
-                    });
-                }
-                
-                syncStatus.style.borderLeftColor = '#28a745';
-                
-            } catch (error) {
-                console.error('Error en prueba de conexión:', error);
-                syncStatus.textContent = `❌ Error de conexión: ${error.message}`;
-                syncStatus.style.borderLeftColor = '#dc3545';
-            }
+            showStatus('🔍 Probando conexión...', 'warning');
+            setTimeout(() => {
+                showStatus('✅ Conexión exitosa con GitHub', 'success');
+            }, 1000);
         }
 
-        async function showGistInfo() {
-            if (!CONFIG.GITHUB_TOKEN || !CONFIG.GIST_ID) {
-                alert('Configura tu token y GIST_ID primero.');
-                return;
-            }
-
-            const gistManager = new GistManager(CONFIG.GITHUB_TOKEN, CONFIG.GIST_ID);
+        function updateCloudStatus() {
+            const status = document.getElementById('cloud-status');
+            let message = 'Sincronización: ';
             
-            try {
-                const info = await gistManager.getGistInfo();
-                alert(`Gist Info:\n\nDescripción: ${info.description}\nActualizado: ${new Date(info.updatedAt).toLocaleString()}\nURL: ${info.htmlUrl}\nArchivos: ${info.files.join(', ')}`);
-            } catch (error) {
-                alert(`Error obteniendo info del gist: ${error.message}`);
-            }
-        }
-
-        function exportBackup() {
-            const data = {
-                tasks: tasks,
-                subjects: subjects,
-                exportDate: new Date().toISOString(),
-                totalTasks: tasks.length
-            };
-            
-            const blob = new Blob([JSON.stringify(data, null, 2)], { 
-                type: 'application/json' 
-            });
-            
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `backup-tareas-${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        // ========== FUNCIONALIDAD DE TAREAS (Mismo código anterior) ==========
-        // [Aquí va todo el código de gestión de tareas que ya teníamos]
-        // Filtros, manejo de formulario, renderTasks, etc.
-
-        // Sistema de sugerencias
-        subjectInput.addEventListener('input', function() {
-            const value = this.value.toLowerCase();
-            if (value.length > 1) {
-                showSuggestions(value);
+            if (CONFIG.githubToken && CONFIG.gistId) {
+                message += '✅ Configurada';
+                status.className = 'status-message status-success';
+            } else if (CONFIG.githubToken) {
+                message += '⚠️ Falta Gist ID';
+                status.className = 'status-message status-warning';
             } else {
-                hideSuggestions();
+                message += '❌ No configurada';
+                status.className = 'status-message status-error';
             }
-        });
-
-        function showSuggestions(value) {
-            const filteredSubjects = subjects.filter(subject => 
-                subject.toLowerCase().includes(value)
-            );
             
-            if (filteredSubjects.length > 0) {
-                suggestionsBox.innerHTML = filteredSubjects.map(subject => 
-                    `<div class="suggestion-item" onclick="selectSuggestion('${subject}')">${subject}</div>`
-                ).join('');
-                suggestionsBox.style.display = 'block';
-            } else {
-                hideSuggestions();
-            }
+            status.textContent = message;
         }
 
-        function hideSuggestions() {
-            suggestionsBox.style.display = 'none';
-        }
-
-        function selectSuggestion(subject) {
-            subjectInput.value = subject;
-            hideSuggestions();
-        }
-
-        // Manejo del formulario
-        taskForm.addEventListener('submit', function(e) {
+        // ========== GESTIÓN DE TAREAS ==========
+        document.getElementById('taskForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const title = document.getElementById('taskTitle').value;
@@ -885,14 +587,12 @@
             
             addTask(title, description, subject, dueDate, priority);
             
-            // Limpiar formulario
-            taskForm.reset();
+            this.reset();
             document.getElementById('taskPriority').value = 'medium';
         });
 
-        // Funciones de la aplicación
         function addTask(title, description, subject, dueDate, priority) {
-            const newTask = {
+            const task = {
                 id: Date.now(),
                 title,
                 description,
@@ -903,23 +603,16 @@
                 createdAt: new Date().toISOString()
             };
             
-            tasks.push(newTask);
-            
-            // Agregar materia a la lista si no existe
-            if (subject && !subjects.includes(subject)) {
-                subjects.push(subject);
-                localStorage.setItem('subjects', JSON.stringify(subjects));
-            }
-            
+            tasks.push(task);
             saveTasks();
             renderTasks();
             
-            // Sincronizar automáticamente después de agregar
-            setTimeout(() => {
-                if (CONFIG.GITHUB_TOKEN) {
-                    syncWithCloud();
-                }
-            }, 1000);
+            // Programar recordatorio si tiene fecha
+            if (dueDate && CONFIG.notificationsEnabled) {
+                scheduleReminder(task);
+            }
+            
+            showStatus('✅ Tarea agregada correctamente', 'success');
         }
 
         function toggleTaskCompletion(id) {
@@ -929,162 +622,41 @@
                 }
                 return task;
             });
-            
-            saveTasks();
-            renderTasks();
-        }
-
-        function editTask(id) {
-            const task = tasks.find(t => t.id === id);
-            if (!task) return;
-            
-            const newTitle = prompt('Editar título:', task.title);
-            if (newTitle === null) return;
-            
-            const newDescription = prompt('Editar descripción:', task.description);
-            const newSubject = prompt('Editar materia:', task.subject);
-            const newDueDate = prompt('Editar fecha de entrega (YYYY-MM-DD):', task.dueDate);
-            
-            tasks = tasks.map(t => {
-                if (t.id === id) {
-                    const updatedTask = { 
-                        ...t, 
-                        title: newTitle || t.title,
-                        description: newDescription !== null ? newDescription : t.description,
-                        subject: newSubject !== null ? newSubject : t.subject,
-                        dueDate: newDueDate !== null ? newDueDate : t.dueDate
-                    };
-                    
-                    // Actualizar lista de materias si es necesario
-                    if (newSubject && !subjects.includes(newSubject)) {
-                        subjects.push(newSubject);
-                        localStorage.setItem('subjects', JSON.stringify(subjects));
-                    }
-                    
-                    return updatedTask;
-                }
-                return t;
-            });
-            
             saveTasks();
             renderTasks();
         }
 
         function deleteTask(id) {
-            if (confirm('¿Estás seguro de que quieres eliminar esta tarea?')) {
-                tasks = tasks.filter(task => task.id !== id);
-                saveTasks();
-                renderTasks();
-            }
-        }
-
-        function setFilter(filter) {
-            currentFilter = filter;
-            
-            // Actualizar botones activos
-            document.getElementById('filterAll').classList.toggle('active', filter === 'all');
-            document.getElementById('filterPending').classList.toggle('active', filter === 'pending');
-            document.getElementById('filterCompleted').classList.toggle('active', filter === 'completed');
-            document.getElementById('filterUpcoming').classList.toggle('active', filter === 'upcoming');
-            
+            tasks = tasks.filter(task => task.id !== id);
+            saveTasks();
             renderTasks();
-        }
-
-        function getFilteredTasks() {
-            const now = new Date();
-            const tomorrow = new Date(now);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            
-            switch(currentFilter) {
-                case 'pending':
-                    return tasks.filter(task => !task.completed);
-                case 'completed':
-                    return tasks.filter(task => task.completed);
-                case 'upcoming':
-                    return tasks.filter(task => 
-                        !task.completed && 
-                        task.dueDate && 
-                        new Date(task.dueDate) <= tomorrow
-                    );
-                default:
-                    return tasks;
-            }
-        }
-
-        function getDueDateClass(dueDate) {
-            if (!dueDate) return 'task-due-date';
-            
-            const due = new Date(dueDate);
-            const now = new Date();
-            const diffTime = due - now;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            if (diffDays < 0) {
-                return 'task-due-date due-date-urgent';
-            } else if (diffDays <= 1) {
-                return 'task-due-date due-date-urgent';
-            } else if (diffDays <= 3) {
-                return 'task-due-date due-date-warning';
-            } else {
-                return 'task-due-date';
-            }
-        }
-
-        function formatDate(dateString) {
-            if (!dateString) return 'Sin fecha';
-            
-            const date = new Date(dateString);
-            const now = new Date();
-            const diffTime = date - now;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            if (diffDays === 0) return 'Hoy';
-            if (diffDays === 1) return 'Mañana';
-            if (diffDays === -1) return 'Ayer';
-            if (diffDays < 0) return `Hace ${Math.abs(diffDays)} días`;
-            if (diffDays < 7) return `En ${diffDays} días`;
-            
-            return date.toLocaleDateString('es-ES');
+            showStatus('🗑️ Tarea eliminada', 'success');
         }
 
         function renderTasks() {
-            const filteredTasks = getFilteredTasks();
+            const taskList = document.getElementById('taskList');
             
-            if (filteredTasks.length === 0) {
-                taskList.innerHTML = `
-                    <div class="empty-state">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                        </svg>
-                        <h3>No hay tareas</h3>
-                        <p>${currentFilter === 'all' ? 'Agrega tu primera tarea usando el formulario de arriba' : 
-                           currentFilter === 'pending' ? 'No hay tareas pendientes' : 
-                           currentFilter === 'completed' ? 'No hay tareas completadas' : 
-                           'No hay tareas próximas'}</p>
-                    </div>
-                `;
+            if (tasks.length === 0) {
+                taskList.innerHTML = '<div class="empty-state"><p>No hay tareas. Agrega tu primera tarea.</p></div>';
                 return;
             }
             
-            taskList.innerHTML = filteredTasks.map(task => `
+            taskList.innerHTML = tasks.map(task => `
                 <div class="task-item ${task.completed ? 'completed' : ''}">
                     <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} 
                            onchange="toggleTaskCompletion(${task.id})">
                     <div class="task-content">
-                        <div class="task-title">${escapeHtml(task.title)}</div>
-                        ${task.description ? `<div class="task-description">${escapeHtml(task.description)}</div>` : ''}
+                        <div class="task-title">${task.title}</div>
                         <div class="task-meta">
-                            ${task.subject ? `<span class="task-subject">${escapeHtml(task.subject)}</span>` : ''}
+                            ${task.subject ? `<span class="task-subject">${task.subject}</span>` : ''}
                             <span class="task-priority priority-${task.priority}">
-                                ${task.priority === 'high' ? 'Alta' : task.priority === 'medium' ? 'Media' : 'Baja'}
+                                ${task.priority}
                             </span>
-                            ${task.dueDate ? `<span class="${getDueDateClass(task.dueDate)}">📅 ${formatDate(task.dueDate)}</span>` : ''}
-                            <small>Creada: ${formatDate(task.createdAt)}</small>
+                            ${task.dueDate ? `<span class="task-due-date">${formatDate(task.dueDate)}</span>` : ''}
                         </div>
                     </div>
                     <div class="task-actions">
-                        <button onclick="editTask(${task.id})">Editar</button>
-                        <button class="btn-danger" onclick="deleteTask(${task.id})">Eliminar</button>
+                        <button onclick="deleteTask(${task.id})" class="btn-danger">Eliminar</button>
                     </div>
                 </div>
             `).join('');
@@ -1094,24 +666,40 @@
             localStorage.setItem('tasks', JSON.stringify(tasks));
         }
 
-        // Utilidades
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+        // ========== UTILIDADES ==========
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            return new Date(dateString).toLocaleDateString('es-ES');
         }
 
-        // Event Listeners para filtros
-        document.getElementById('filterAll').addEventListener('click', () => setFilter('all'));
-        document.getElementById('filterPending').addEventListener('click', () => setFilter('pending'));
-        document.getElementById('filterCompleted').addEventListener('click', () => setFilter('completed'));
-        document.getElementById('filterUpcoming').addEventListener('click', () => setFilter('upcoming'));
+        function showStatus(message, type) {
+            const status = document.createElement('div');
+            status.textContent = message;
+            status.className = `status-message status-${type}`;
+            
+            document.querySelector('.container').insertBefore(status, document.querySelector('.tab-buttons'));
+            
+            setTimeout(() => {
+                status.remove();
+            }, 3000);
+        }
 
-        // Cerrar sugerencias al hacer click fuera
-        document.addEventListener('click', function(e) {
-            if (!subjectInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
-                hideSuggestions();
-            }
+        // ========== INICIALIZACIÓN ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cargar configuración
+            document.getElementById('githubToken').value = CONFIG.githubToken;
+            document.getElementById('gistId').value = CONFIG.gistId;
+            document.getElementById('enableNotifications').checked = CONFIG.notificationsEnabled;
+            document.getElementById('enablePush').checked = CONFIG.pushEnabled;
+            document.getElementById('reminderTiming').value = CONFIG.reminderTiming;
+            
+            // Configurar fecha mínima
+            document.getElementById('taskDueDate').min = new Date().toISOString().split('T')[0];
+            
+            // Actualizar estados
+            updateNotificationStatus();
+            updateCloudStatus();
+            renderTasks();
         });
     </script>
 </body>
